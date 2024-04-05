@@ -226,13 +226,11 @@ app.post("/api/contact-us", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
-
 mongoose
   .connect(`${process.env.MONGO_URI}`)
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    app.listen(process.env.PORT || 8080, () => {
+      console.log(`Server running on port ${process.env.PORT || 8080}`);
     });
     console.log("Database is Connected.");
   })
