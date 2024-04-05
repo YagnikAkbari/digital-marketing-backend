@@ -14,6 +14,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (req, res) => {
+  res.status(200).json("Welcome to backend");
+});
+
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
