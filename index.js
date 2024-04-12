@@ -256,6 +256,49 @@ app.post("/api/send-email", async (req, res) => {
   }
 });
 
+app.post("/api/send-date", async (req, res) => {
+  try {
+    const { date, email } = req.body;
+    console.log(date, email);
+
+    const OAuth2 = google.auth.OAuth2;
+    const oauth2Client = new OAuth2(
+      process.env.GOOGLE_AUTH_CLIENT_ID,
+      process.env.GOOGLE_AUTH_CLIENT_SECRET,
+      process.env.GOOGLE_AUTH_REDIRECT_URL
+    );
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_AUTH_REFRESH_TOKEN,
+    });
+
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.OWNER_EMAIL,
+        clientId: process.env.GOOGLE_AUTH_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_AUTH_REFRESH_TOKEN,
+        accessToken: oauth2Client.getAccessToken(),
+      },
+    });
+
+    await transporter.sendMail({
+      from: `Growwitup Agency ${email}`,
+      to: `${process.env.OWNER_EMAIL}`,
+      subject: "Meeting Scheduled!",
+      html: `<p>${date} is Selcted for meeting by ${email}.</p>`,
+    });
+
+    res.status(200).json({ message: "We will Contact you soon..." });
+  } catch (error) {
+    console.error("Error sending email to subscribers:", error);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later." });
+  }
+});
+
 mongoose
   .connect(`${process.env.MONGO_URI}`)
   .then(() => {
